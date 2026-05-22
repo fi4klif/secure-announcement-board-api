@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= announcement.title %> - Дошка оголошень</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>📋 Дошка оголошень</h1>
+      <p>Купуй, продавай, поділись - все в одному місці</p>
+    </div>
+  </header>
+
+  <div class="container">
+    <a href="/" class="back-link">← Повернутись на головну</a>
+
+    <div class="announcement-details">
+      <span class="category-badge category-<%= announcement.category %>">
+        <% 
+          const categoryEmoji = {
+            'sale': '📦',
+            'service': '🔧',
+            'job': '💼',
+            'other': '📌'
+          };
+          const categoryName = {
+            'sale': 'Продаж',
+            'service': 'Послуги',
+            'job': 'Робота',
+            'other': 'Інше'
+          };
+        %>
+        <%= categoryEmoji[announcement.category] %> <%= categoryName[announcement.category] %>
+      </span>
+
+      <h1><%= announcement.title %></h1>
+
+      <div class="meta-info">
+        <div class="item">
+          <span class="label">Ціна</span>
+          <span class="value"><%= announcement.price.toFixed(2) %> грн</span>
+        </div>
+        <div class="item">
+          <span class="label">Опубліковано</span>
+          <span class="value">
+            <%= new Date(announcement.createdAt).toLocaleDateString('uk-UA', { 
+              day: 'numeric', 
+              month: 'long', 
+              year: 'numeric' 
+            }) %>
+          </span>
+        </div>
+      </div>
+
+      <div class="description-section">
+        <h2>Опис</h2>
+        <p><%= announcement.description %></p>
+      </div>
+
+      <div class="contacts-section">
+        <h3>Контакти:</h3>
+        <p><%= announcement.contactInfo %></p>
+      </div>
+
+      <div class="action-buttons">
+        <button id="delete-btn" class="danger">🗑 Видалити</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const deleteBtn = document.querySelector('#delete-btn');
+    const announcementId = <%= announcement.id %>;
+
+    deleteBtn.addEventListener('click', async () => {
+      if (!confirm('Ви впевнені що хочете видалити це оголошення?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/announcements/${announcementId}`, {
+          method: 'DELETE'
+        });
+
+        if (response.ok) {
+          window.location.href = '/';
+        } else {
+          alert('Помилка при видаленні');
+        }
+      } catch (error) {
+        alert('Помилка при видаленні');
+      }
+    });
+  </script>
+</body>
+</html>

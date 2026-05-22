@@ -1,0 +1,22 @@
+{
+  "name": "announcement-board",
+  "version": "1.0.0",
+  "description": "A bulletin board web application",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node --watch app.js"
+  },
+  "keywords": ["bulletin", "announcements"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^5.7.0",
+    "express": "^4.18.2",
+    "ejs": "^3.1.9"
+  },
+  "devDependencies": {
+    "prisma": "^5.7.0"
+  }
+}

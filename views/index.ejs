@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Дошка оголошень</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>📋 Дошка оголошень</h1>
+      <p>Купуй, продавай, поділись - все в одному місці</p>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Search Section -->
+    <div class="search-section">
+      <div class="search-controls">
+        <div class="search-group" style="flex: 2;">
+          <label for="search">Пошук</label>
+          <form method="GET" action="/" style="display: flex; gap: 10px;">
+            <input 
+              type="text" 
+              id="search" 
+              name="search" 
+              placeholder="Шукати оголошення..."
+              value="<%= search || '' %>"
+            >
+            <button type="submit">Знайти</button>
+          </form>
+        </div>
+
+        <div class="search-group">
+          <label for="sort">Сортування</label>
+          <form method="GET" action="/" id="sortForm">
+            <input type="hidden" name="search" value="<%= search || '' %>">
+            <select id="sort" name="sort" onchange="document.getElementById('sortForm').submit()">
+              <option value="newest" <%= sort === 'newest' ? 'selected' : '' %>>
+                Новіші спочатку
+              </option>
+              <option value="oldest" <%= sort === 'oldest' ? 'selected' : '' %>>
+                Старіші спочатку
+              </option>
+            </select>
+          </form>
+        </div>
+
+        <div class="search-group">
+          <a href="/announcements" style="text-decoration: none;">
+            <button type="button">+ Додати оголошення</button>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Announcements Grid -->
+    <% if (announcements.length === 0) { %>
+      <div class="no-announcements">
+        <p>Оголошень не знайдено</p>
+        <% if (search) { %>
+          <p style="font-size: 14px; color: #95a5a6;">Спробуйте змінити параметри пошуку</p>
+        <% } %>
+      </div>
+    <% } else { %>
+      <div class="announcements-grid">
+        <% announcements.forEach(ann => { %>
+          <div class="announcement-card">
+            <span class="category-badge category-<%= ann.category %>">
+              <% 
+                const categoryEmoji = {
+                  'sale': '📦',
+                  'service': '🔧',
+                  'job': '💼',
+                  'other': '📌'
+                };
+                const categoryName = {
+                  'sale': 'Продаж',
+                  'service': 'Послуги',
+                  'job': 'Робота',
+                  'other': 'Інше'
+                };
+              %>
+              <%= categoryEmoji[ann.category] %> <%= categoryName[ann.category] %>
+            </span>
+            <h3><%= ann.title %></h3>
+            <p class="description">
+              <%= ann.description.substring(0, 100) %><% if (ann.description.length > 100) { %>...<% } %>
+            </p>
+            <p class="price"><%= ann.price.toFixed(2) %> грн</p>
+            <p class="date">
+              <%= new Date(ann.createdAt).toLocaleDateString('uk-UA', { 
+                day: 'numeric', 
+                month: 'long', 
+                year: 'numeric' 
+              }) %>
+            </p>
+            <a href="/announcements/<%= ann.id %>">Детальніше →</a>
+          </div>
+        <% }) %>
+      </div>
+
+      <!-- Pagination -->
+      <% if (totalPages > 1) { %>
+        <div class="pagination">
+          <% if (currentPage > 1) { %>
+            <a href="/?page=<%= currentPage - 1 %>&search=<%= search || '' %>&sort=<%= sort %>">
+              ← Попередня
+            </a>
+          <% } else { %>
+            <span class="disabled">← Попередня</span>
+          <% } %>
+
+          <% for (let i = 1; i <= totalPages; i++) { %>
+            <% if (i === currentPage) { %>
+              <span class="current"><%= i %></span>
+            <% } else { %>
+              <a href="/?page=<%= i %>&search=<%= search || '' %>&sort=<%= sort %>">
+                <%= i %>
+              </a>
+            <% } %>
+          <% } %>
+
+          <% if (currentPage < totalPages) { %>
+            <a href="/?page=<%= currentPage + 1 %>&search=<%= search || '' %>&sort=<%= sort %>">
+              Наступна →
+            </a>
+          <% } else { %>
+            <span class="disabled">Наступна →</span>
+          <% } %>
+        </div>
+      <% } %>
+    <% } %>
+  </div>
+</body>
+</html>
