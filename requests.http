@@ -1,0 +1,137 @@
+### Variables
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+### 1. Get all announcements without parameters
+GET {{baseUrl}}/announcements
+
+### 2. Get announcements with search
+GET {{baseUrl}}/announcements?search=ноутбук
+
+### 3. Get announcements with sort and page
+GET {{baseUrl}}/announcements?sort=oldest&page=1
+
+### 4. Get announcements with search, sort, and page
+GET {{baseUrl}}/announcements?search=продам&sort=newest&page=1
+
+### 5. Get a single announcement (with valid ID - change ID as needed)
+GET {{baseUrl}}/announcements/1
+
+### 6. Get an announcement with non-existent ID
+GET {{baseUrl}}/announcements/99999
+
+### 7. Create an announcement with valid data
+POST {{baseUrl}}/announcements
+Content-Type: {{contentType}}
+
+{
+  "title": "Продам ноутбук ASUS",
+  "description": "Відмінний стан, 16GB RAM, SSD 512GB, ідеально для роботи та навчання",
+  "price": 18000,
+  "category": "sale",
+  "contactInfo": "0991234567"
+}
+
+### 8. Create an announcement with invalid title (too short)
+POST {{baseUrl}}/announcements
+Content-Type: {{contentType}}
+
+{
+  "title": "ноут",
+  "description": "Відмінний стан, 16GB RAM, SSD 512GB",
+  "price": 18000,
+  "category": "sale",
+  "contactInfo": "0991234567"
+}
+
+### 9. Create an announcement with invalid price (zero)
+POST {{baseUrl}}/announcements
+Content-Type: {{contentType}}
+
+{
+  "title": "Продам ноутбук",
+  "description": "Відмінний стан, 16GB RAM, SSD 512GB",
+  "price": 0,
+  "category": "sale",
+  "contactInfo": "0991234567"
+}
+
+### 10. Create an announcement with invalid category
+POST {{baseUrl}}/announcements
+Content-Type: {{contentType}}
+
+{
+  "title": "Продам ноутбук",
+  "description": "Відмінний стан, 16GB RAM, SSD 512GB",
+  "price": 18000,
+  "category": "invalid",
+  "contactInfo": "0991234567"
+}
+
+### 11. Create an announcement with missing required fields
+POST {{baseUrl}}/announcements
+Content-Type: {{contentType}}
+
+{
+  "title": "Продам ноутбук",
+  "price": 18000
+}
+
+### 12. Create another announcement for testing update and delete
+POST {{baseUrl}}/announcements
+Content-Type: {{contentType}}
+
+{
+  "title": "Усім давайте послуги дизайну",
+  "description": "Професійний веб-дизайн, логотипи, баннери для бізнесу",
+  "price": 5000,
+  "category": "service",
+  "contactInfo": "+380951234567"
+}
+
+### 13. Update an announcement with partial data (title only)
+PATCH {{baseUrl}}/announcements/1
+Content-Type: {{contentType}}
+
+{
+  "title": "Продам ноутбук Dell з гарантією"
+}
+
+### 14. Update an announcement with multiple fields
+PATCH {{baseUrl}}/announcements/1
+Content-Type: {{contentType}}
+
+{
+  "title": "Продам потужний ноутбук",
+  "price": 20000,
+  "contactInfo": "0991234568"
+}
+
+### 15. Update an announcement with invalid price (negative)
+PATCH {{baseUrl}}/announcements/1
+Content-Type: {{contentType}}
+
+{
+  "price": -1000
+}
+
+### 16. Update a non-existent announcement
+PATCH {{baseUrl}}/announcements/99999
+Content-Type: {{contentType}}
+
+{
+  "title": "Updated Title"
+}
+
+### 17. Update with empty body (should fail validation)
+PATCH {{baseUrl}}/announcements/1
+Content-Type: {{contentType}}
+
+{
+}
+
+### 18. Delete an announcement
+DELETE {{baseUrl}}/announcements/2
+
+### 19. Delete a non-existent announcement
+DELETE {{baseUrl}}/announcements/99999

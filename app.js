@@ -1,195 +1,120 @@
+import "dotenv/config.js";
 import express from "express";
-import { PrismaClient } from "@prisma/client";
+import swaggerJsdoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
+import { isCelebrateError } from "celebrate";
+import announcementsRouter from "./src/routes/announcements.routes.js";
 
 const app = express();
-const prisma = new PrismaClient();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static("public"));
-app.set("view engine", "ejs");
+
+// Swagger configuration
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Announcements API",
+      version: "1.0.0",
+      description: "A RESTful API for managing announcements",
+    },
+    servers: [
+      {
+        url: `http://localhost:${PORT}`,
+        description: "Development server",
+      },
+    ],
+    components: {
+      schemas: {
+        Announcement: {
+          type: "object",
+          properties: {
+            id: {
+              type: "integer",
+              description: "Unique identifier",
+            },
+            title: {
+              type: "string",
+              description: "Announcement title",
+            },
+            description: {
+              type: "string",
+              description: "Announcement description",
+            },
+            price: {
+              type: "number",
+              description: "Announcement price",
+            },
+            category: {
+              type: "string",
+              enum: ["sale", "service", "job", "other"],
+              description: "Announcement category",
+            },
+            contactInfo: {
+              type: "string",
+              description: "Contact information",
+            },
+            createdAt: {
+              type: "string",
+              format: "date-time",
+              description: "Creation timestamp",
+            },
+            updatedAt: {
+              type: "string",
+              format: "date-time",
+              description: "Last update timestamp",
+            },
+          },
+        },
+      },
+    },
+  },
+  apis: ["./src/routes/*.js"],
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
+app.use("/announcements", announcementsRouter);
 
-// GET / - Main page with search, sort, pagination
-app.get("/", async (req, res, next) => {
-  try {
-    const { search, sort = "newest", page = 1 } = req.query;
-    const perPage = 10;
-    const pageNum = Number(page);
-
-    // Build where clause for filtering
-    const where = {};
-    if (search) {
-      where.title = {
-        contains: search,
-      };
-    }
-
-    // Build orderBy clause
-    let orderBy = { createdAt: "desc" };
-    if (sort === "oldest") {
-      orderBy = { createdAt: "asc" };
-    }
-
-    // Calculate pagination
-    const skip = (pageNum - 1) * perPage;
-
-    // Get total count and announcements
-    const total = await prisma.announcement.count({ where });
-    const announcements = await prisma.announcement.findMany({
-      where,
-      orderBy,
-      skip,
-      take: perPage,
-    });
-
-    const totalPages = Math.ceil(total / perPage);
-    const currentPage =
-      pageNum < 1
-        ? 1
-        : pageNum > totalPages && totalPages > 0
-          ? totalPages
-          : pageNum;
-
-    res.render("index", {
-      announcements,
-      totalPages,
-      currentPage,
-      search: search || "",
-      sort: sort || "newest",
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// GET /announcements - Show form to create announcement
-app.get("/announcements", (req, res, next) => {
-  try {
-    res.render("new", {
-      errors: {},
-      data: null,
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// POST /announcements - Create announcement
-app.post("/announcements", async (req, res, next) => {
-  try {
-    const { title, description, price, category, contactInfo } = req.body;
-    const errors = {};
-
-    // Validate title
-    if (!title || title.trim().length < 5) {
-      errors.title = "Назва має бути не менше 5 символів";
-    }
-    if (title && title.length > 100) {
-      errors.title = "Назва має бути не більше 100 символів";
-    }
-
-    // Validate description
-    if (!description || description.trim().length < 10) {
-      errors.description = "Опис має бути не менше 10 символів";
-    }
-
-    // Validate category
-    const validCategories = ["sale", "service", "job", "other"];
-    if (!category || !validCategories.includes(category)) {
-      errors.category = "Оберіть категорію";
-    }
-
-    // Validate price
-    if (!price || isNaN(price) || Number(price) <= 0) {
-      errors.price = "Ціна має бути додатним числом";
-    }
-
-    // Validate contact info
-    if (!contactInfo || contactInfo.trim().length < 5) {
-      errors.contactInfo = "Контактна інформація має бути не менше 5 символів";
-    }
-
-    // If there are errors, render form again with errors and data
-    if (Object.keys(errors).length > 0) {
-      return res.render("new", {
-        errors,
-        data: req.body,
-      });
-    }
-
-    // Create announcement
-    const announcement = await prisma.announcement.create({
-      data: {
-        title: title.trim(),
-        description: description.trim(),
-        price: Number(price),
-        category,
-        contactInfo: contactInfo.trim(),
-      },
-    });
-
-    res.redirect(`/announcements/${announcement.id}`);
-  } catch (error) {
-    next(error);
-  }
-});
-
-// GET /announcements/:id - Show announcement details
-app.get("/announcements/:id", async (req, res, next) => {
-  try {
-    const id = Number(req.params.id);
-
-    if (isNaN(id)) {
-      return res
-        .status(404)
-        .render("404", { message: "Оголошення не знайдено" });
-    }
-
-    const announcement = await prisma.announcement.findUnique({
-      where: { id },
-    });
-
-    if (!announcement) {
-      return res
-        .status(404)
-        .render("404", { message: "Оголошення не знайдено" });
-    }
-
-    res.render("announcement", { announcement });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// DELETE /announcements/:id - Delete announcement
-app.delete("/announcements/:id", async (req, res, next) => {
-  try {
-    const id = Number(req.params.id);
-
-    await prisma.announcement.delete({
-      where: { id },
-    });
-
-    res.status(204).end();
-  } catch (error) {
-    next(error);
-  }
-});
-
-// 404 Handler
+// 404 handler
 app.use((req, res) => {
-  res.status(404).render("404", { message: "Сторінка не знайдена" });
+  res.status(404).json({ error: "Route not found" });
 });
 
-// Error Handler
-app.use((err, req, res, next) => {
-  console.error("Error:", err);
-  res.status(500).render("error");
+// Global error handler
+app.use((error, req, res, next) => {
+  // Celebrate validation errors
+  if (isCelebrateError(error)) {
+    const details = {};
+    for (const [key, value] of error.details) {
+      details[key] = value.details.map((detail) => detail.message);
+    }
+    return res.status(400).json({ error: "Validation error", details });
+  }
+
+  // Prisma P2025 error (record not found)
+  if (error.code === "P2025") {
+    return res.status(404).json({ error: "Record not found" });
+  }
+
+  // Prisma validation errors
+  if (error.code === "P2003" || error.code === "P2014") {
+    return res.status(400).json({ error: error.message });
+  }
+
+  // Generic error
+  console.error("Error:", error);
+  res.status(500).json({ error: "Internal server error" });
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(
+    `Swagger API docs available at http://localhost:${PORT}/api-docs`,
+  );
 });
