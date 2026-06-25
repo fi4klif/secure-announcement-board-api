@@ -2,12 +2,10 @@ import "dotenv/config.js";
 import express from "express";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
-import celebratePkg from "celebrate";
 import cookieParser from "cookie-parser";
 import announcementsRouter from "./src/routes/announcements.routes.js";
 import authRouter from "./src/routes/auth.routes.js";
 
-const { isCelebrateError } = celebratePkg;
 const app = express();
 const PORT = process.env.PORT || 3000;
 // Middleware
@@ -103,7 +101,7 @@ app.use((req, res) => {
 
 app.use((error, req, res, next) => {
   // Celebrate validation errors
-  if (isCelebrateError(error)) {
+  if (error && error.details && typeof error.details.get === "function") {
     const details = {};
     for (const [key, value] of error.details) {
       details[key] = value.details.map((detail) => detail.message);

@@ -1,36 +1,111 @@
-# Secure Announcement Board REST API
+Announcement Board REST API
+A secure, JSON-based REST API for an announcement board. Built with Node.js, Express, and Prisma, featuring JWT authentication and strict data ownership validation.
 
-[cite_start]Повноцінний та захищений RESTful API для дошки оголошень, побудований на базі Node.js (Express 5)[cite: 235]. [cite_start]Застосунок повністю переведено з публічного REST API на захищену архітектуру із системою автентифікації на базі JSON Web Tokens (JWT), механізмом Refresh токенів із ротацією та суворим контролем власності (Ownership)[cite: 188, 189].
+✨ Features
+JWT Authentication: Secure login with short-lived Access tokens and rotated Refresh tokens (HttpOnly cookies).
 
-[cite_start]Сервер не виконує рендеринг HTML, а взаємодіє з клієнтом виключно через JSON-відповіді[cite: 236].
+Data Ownership: Users can only update or delete their own announcements.
 
-## 🚀 Функціональність
+Public Feed: View, search, sort, and paginate (10 per page) announcements without authentication.
 
-- [cite_start]🔐 **Автентифікація JWT та Token Rotation** — безпечна реєстрація та вхід користувачів[cite: 210, 212]. [cite_start]Видача Access токенів (діють 15 хв) та Refresh токенів (діють 7 днів, зберігаються в HttpOnly cookie та базі даних)[cite: 211, 215]. [cite_start]Реалізовано механізм безпечної ротації рефреш-токенів[cite: 217].
-- [cite_start]🛡️ **Концепція власності (Ownership)** — керування оголошеннями (створення, оновлення, видалення) суворо обмежено концепцією володіння записом[cite: 189]. [cite_start]Користувач може модифікувати або видаляти лише власні оголошення[cite: 189].
-- [cite_start]🔍 **Публічний перегляд з фільтрацією** — отримання списку оголошень із можливістю повнотекстового пошуку (нечутливого до регістру), сортування за датою (`newest`/`oldest`) та пагінацією (по 10 записів на сторінку) є повністю публічним[cite: 223, 240].
-- [cite_start]📝 **Надійна валідація даних** — перевірка вхідних даних на рівні серверу за допомогою `celebrate` (Joi) для всіх маршрутів автентифікації та оголошень[cite: 199, 237].
-- [cite_start]📖 **Інтерактивна документація Swagger** — усі ендпоінти повністю задокументовані за допомогою JSDoc коментарів та доступні для тестування через інтерфейс Swagger UI[cite: 229, 240].
+Validation: Strict payload validation using celebrate (Joi).
 
-## 🛠 Технологічний стек
+API Docs: Interactive Swagger UI documentation.
 
-- [cite_start]**Node.js** & **Express 5** (бек-енд фреймворк) [cite: 235]
-- [cite_start]**Prisma ORM** (інструмент для роботи з базою даних) [cite: 237]
-- [cite_start]**SQLite** (реляційна база даних) [cite: 237]
-- [cite_start]**jsonwebtoken** & **bcrypt** (криптографія, хешування паролів та підпис токенів) [cite: 210, 211]
-- [cite_start]**Celebrate / Joi** (валідація запитів) [cite: 199, 237]
-- **Swagger UI Express** (генерація документації API)
+🛠 Tech Stack
+Backend: Node.js, Express 5
 
-## 📋 Вимоги
+Database: SQLite, Prisma ORM
 
-- Node.js (v18 або новіше)
-- npm
+Security: jsonwebtoken, bcrypt
 
-## 🔧 Установка та налаштування
+Validation & Docs: celebrate (Joi), swagger-ui-express
 
-1. Клонуйте або завантажте цей репозиторій.
-2. Перейдіть до кореневої директорії проекту.
-3. Встановіть залежності:
-   ```bash
-   npm install
-   ```
+🚀 Getting Started
+Prerequisites
+Node.js (v18+)
+
+npm
+
+Installation
+Clone the repository and navigate to the project folder:
+
+Bash
+git clone <repo-url>
+cd <project-folder>
+Install dependencies:
+
+Bash
+npm install
+Create a .env file in the root directory and add your variables:
+
+Фрагмент коду
+PORT=3000
+DATABASE_URL="file:./dev.db"
+JWT_SECRET="your_access_secret"
+JWT_REFRESH_SECRET="your_refresh_secret"
+Run database migrations:
+
+Bash
+npx prisma migrate dev
+Start the development server:
+
+Bash
+npm run dev
+The server will start on http://localhost:3000 and redirect to the Swagger API docs.
+
+Дошка оголошень REST API
+Захищений REST API для дошки оголошень. Побудований на Node.js, Express та Prisma з підтримкою JWT-автентифікації та суворим контролем прав власності на дані.
+
+✨ Функціонал
+JWT Автентифікація: Безпечний вхід через Access-токени та ротацію Refresh-токенів (HttpOnly cookies).
+
+Концепція власності (Ownership): Користувачі можуть оновлювати або видаляти лише власні оголошення.
+
+Публічна стрічка: Перегляд, пошук, сортування та пагінація (по 10 записів) доступні без авторизації.
+
+Валідація: Сувора перевірка вхідних даних за допомогою celebrate (Joi).
+
+Документація: Інтерактивна документація через Swagger UI.
+
+🛠 Технології
+Бекенд: Node.js, Express 5
+
+База даних: SQLite, Prisma ORM
+
+Безпека: jsonwebtoken, bcrypt
+
+Валідація та Документація: celebrate (Joi), swagger-ui-express
+
+🚀 Запуск проекту
+Вимоги
+Node.js (v18+)
+
+npm
+
+Встановлення
+Клонуйте репозиторій та перейдіть у папку проекту:
+
+Bash
+git clone <repo-url>
+cd <project-folder>
+Встановіть залежності:
+
+Bash
+npm install
+Створіть файл .env у корені проекту та додайте змінні:
+
+Фрагмент коду
+PORT=3000
+DATABASE_URL="file:./dev.db"
+JWT_SECRET="your_access_secret"
+JWT_REFRESH_SECRET="your_refresh_secret"
+Виконайте міграції бази даних:
+
+Bash
+npx prisma migrate dev
+Запустіть сервер у режимі розробки:
+
+Bash
+npm run dev
+Сервер запуститься на http://localhost:3000 і автоматично перенаправить вас на сторінку документації Swagger.

@@ -23,11 +23,33 @@ const router = Router();
  *   post:
  *     summary: Register a new user
  *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - password
+ *               - name
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: "johndoe"
+ *               password:
+ *                 type: string
+ *                 example: "password123"
+ *               name:
+ *                 type: string
+ *                 example: "John Doe"
  *     responses:
  *       201:
  *         description: User created successfully
+ *       400:
+ *         description: Validation error
  *       409:
- *         description: User with this username/email already exists
+ *         description: User with this username already exists
  */
 router.post("/register", registerValidator, register);
 
@@ -37,9 +59,27 @@ router.post("/register", registerValidator, register);
  *   post:
  *     summary: Login user
  *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - password
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: "johndoe"
+ *               password:
+ *                 type: string
+ *                 example: "password123"
  *     responses:
  *       200:
  *         description: Login successful
+ *       400:
+ *         description: Validation error
  *       401:
  *         description: Invalid credentials
  */
